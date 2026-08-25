@@ -74,23 +74,23 @@ function buildQuestion(config){
   });
   const type = pick(availableTypes);
   const root = Math.floor(Math.random() * 12);
-  const rootName = NOTES[root];
+  const rootName = NOTES.en[root];
 
   if (type === 'chord'){
     const key = pick(config.chords);
-    const answer = CHORD_DEFS[key].map(iv => NOTES[(root + iv) % 12]);
+    const answer = CHORD_DEFS[key].map(iv => NOTES.en[(root + iv) % 12]);
     return { type, root, rootName, defKey: key, answer: new Set(answer), mode: 'multi' };
   }
   if (type === 'scale'){
     const key = pick(config.scales);
-    const answer = SCALE_DEFS[key].map(iv => NOTES[(root + iv) % 12]);
+    const answer = SCALE_DEFS[key].map(iv => NOTES.en[(root + iv) % 12]);
     return { type, root, rootName, defKey: key, answer: new Set(answer), mode: 'multi' };
   }
   // nth
   const key = pick(config.scales);
   const intervals = SCALE_DEFS[key];
   const n = 1 + Math.floor(Math.random() * intervals.length);
-  const answerNote = NOTES[(root + intervals[n - 1]) % 12];
+  const answerNote = NOTES.en[(root + intervals[n - 1]) % 12];
   return { type, root, rootName, defKey: key, n, answer: new Set([answerNote]), mode: 'single' };
 }
 
@@ -112,10 +112,10 @@ document.addEventListener('alpine:init', () => {
     whiteNotes: WHITE_NOTES,
     blackNotes: BLACK_NOTES,
     blackKeyLeft: BLACK_KEY_LEFT,
-    notes: NOTES,
+    notes: NOTES.sr, // canonical pitch-class order, independent of display language
 
     // ----- language -----
-    lang: 'en',
+    lang: 'sr',
 
     // ----- setup screen state -----
     screen: 'setup', // 'setup' | 'quiz' | 'results'
@@ -131,12 +131,16 @@ document.addEventListener('alpine:init', () => {
     index: 0,
     score: 0,
     results: [],       // per-question true/false/null, drives the staff progress markers
+    userAnswers: [],   // per-question array of canonical note names the user actually submitted
     selected: new Set(), // piano-mode selection (canonical note names)
     noteBoxes: [],      // typed-mode box values (raw text as the user typed it)
     answered: false,
     typeError: '',
     _typedValid: false,
     _lastCorrect: null,
+
+    // ----- results screen state -----
+    resultsExpanded: [], // per-question bool, whether the review row is expanded
 
     // ===================================================================
     // Lifecycle
@@ -190,6 +194,7 @@ document.addEventListener('alpine:init', () => {
       this.index = 0;
       this.score = 0;
       this.results = this.questions.map(() => null);
+      this.userAnswers = this.questions.map(() => []);
       this.screen = 'quiz';
       this.renderQuestion();
     },
@@ -238,7 +243,7 @@ document.addEventListener('alpine:init', () => {
     },
 
     answerListFor(q){
-      return [...q.answer].sort((a, b) => NOTES.indexOf(a) - NOTES.indexOf(b)).map(n => this.displayNote(n)).join(', ');
+      return [...q.answer].sort((a, b) => NOTES.en.indexOf(a) - NOTES.en.indexOf(b)).map(n => this.displayNote(n)).join(', ');
     },
 
     // ----- piano input -----
@@ -268,7 +273,7 @@ document.addEventListener('alpine:init', () => {
 
     // Notes currently selected on the piano, in pitch order — used for the chip preview.
     get selectedNotesOrdered(){
-      return NOTES.filter(n => this.selected.has(n));
+      return NOTES.en.filter(n => this.selected.has(n));
     },
 
     // ----- typed (note-box) input -----
@@ -350,6 +355,7 @@ document.addEventListener('alpine:init', () => {
       this.answered = true;
       if (correct) this.score++;
       this.results[this.index] = correct;
+      this.userAnswers[this.index] = [...this.selected];
       this._lastCorrect = correct;
     },
 
@@ -404,10 +410,43 @@ document.addEventListener('alpine:init', () => {
     // ===================================================================
     showResults(){
       this.screen = 'results';
+      this.resultsExpanded = this.questions.map(() => false);
     },
     get resultsPct(){
       if (!this.questions.length) return 0;
       return Math.round((this.score / this.questions.length) * 100);
+    },
+
+    toggleResultRow(i){
+      this.resultsExpanded[i] = !this.resultsExpanded[i];
+    },
+
+    // What the user actually submitted for question i, formatted the same way as
+    // answerListFor (sorted canonical order, localized note names).
+    userAnswerListFor(i){
+      const arr = this.userAnswers[i] || [];
+      if (arr.length === 0) return this.t('NO_SELECTION');
+      return [...arr].sort((a, b) => NOTES.en.indexOf(a) - NOTES.en.indexOf(b)).map(n => this.displayNote(n)).join(', ');
+    },
+
+    // Per-note chip data for the "Your answer" row: each submitted note tagged 'correct'
+    // (it belongs in the answer) or 'wrong' (it doesn't) — drives the red background.
+    reviewUserNotes(i){
+      const q = this.questions[i];
+      const arr = this.userAnswers[i] || [];
+      return [...arr]
+        .sort((a, b) => NOTES.en.indexOf(a) - NOTES.en.indexOf(b))
+        .map(note => ({ note, status: q.answer.has(note) ? 'correct' : 'wrong' }));
+    },
+
+    // Per-note chip data for the "Correct answer" row: each correct note tagged 'correct'
+    // (the user got it) or 'missed' (the user didn't submit it).
+    reviewCorrectNotes(i){
+      const q = this.questions[i];
+      const userSet = new Set(this.userAnswers[i] || []);
+      return [...q.answer]
+        .sort((a, b) => NOTES.en.indexOf(a) - NOTES.en.indexOf(b))
+        .map(note => ({ note, status: userSet.has(note) ? 'correct' : 'missed' }));
     },
 
     retry(){ this.startQuiz(); },

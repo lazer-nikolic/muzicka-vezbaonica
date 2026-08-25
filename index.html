@@ -7,413 +7,7 @@
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='rgb(22,33,27)'/><text x='50' y='78' font-family='Georgia,serif' font-size='82' font-weight='700' text-anchor='middle' fill='rgb(205,164,58)'>𝄞</text></svg>">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Work+Sans:wght@400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
-<style>
-  :root{
-    --bg: #16211b;
-    --panel: #1e2b23;
-    --panel-raised: #24352b;
-    --line: #3a4c40;
-    --chalk: #f1ece0;
-    --chalk-dim: #b9c2b7;
-    --brass: #cda43a;
-    --brass-soft: #cda43a33;
-    --moss: #7fa65b;
-    --moss-soft: #7fa65b26;
-    --rust: #c1614a;
-    --rust-soft: #c1614a26;
-    --key-white: #f1ece0;
-    --key-black: #14201a;
-    --radius: 10px;
-    --font-display: 'Fraunces', Georgia, 'Times New Roman', serif;
-    --font-body: 'Work Sans', -apple-system, Segoe UI, sans-serif;
-    --font-mono: 'Space Mono', 'Courier New', monospace;
-  }
-
-  *{ box-sizing: border-box; }
-  html,body{ margin:0; padding:0; }
-  body{
-    background: var(--bg);
-    background-image:
-      radial-gradient(ellipse at 20% -10%, #2a3a2e 0%, transparent 55%),
-      radial-gradient(ellipse at 100% 0%, #24322a 0%, transparent 45%);
-    color: var(--chalk);
-    font-family: var(--font-body);
-    min-height: 100vh;
-    display:flex;
-    justify-content:center;
-    padding: 28px 16px 60px;
-    -webkit-font-smoothing: antialiased;
-  }
-
-  #app{ width:100%; max-width: 720px; position:relative; }
-  [x-cloak]{ display:none !important; }
-
-  .top-bar{
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    gap: 12px;
-    flex-wrap: wrap;
-    margin-bottom: 6px;
-  }
-  #goBackBtn{ padding: 10px 20px; font-size: 14px; }
-
-  .lang-switch{
-    display:flex; gap:6px;
-  }
-  .lang-btn{
-    font-family: var(--font-mono);
-    font-size: 11px;
-    letter-spacing: 0.06em;
-    background: transparent;
-    color: var(--chalk-dim);
-    border: 1px solid var(--line);
-    border-radius: 6px;
-    padding: 5px 10px;
-    transition: border-color .15s ease, color .15s ease, background .15s ease;
-  }
-  .lang-btn:hover{ border-color: var(--brass); color: var(--brass); }
-  .lang-btn.active{ background: var(--brass-soft); border-color: var(--brass); color: var(--brass); }
-  .lang-btn:focus-visible{ outline: 2px solid var(--brass); outline-offset: 2px; }
-
-  /* ---------- Staff header (signature element) ---------- */
-  .staff-header{ margin-bottom: 28px; }
-  .staff-wrap{ width:100%; }
-  .staff-wrap svg{ width:100%; height:auto; display:block; }
-  .staff-line{ stroke: var(--line); stroke-width:1.5; }
-  .clef{ fill: var(--brass); }
-  .note-mark circle{ transition: opacity .25s ease; }
-
-  .title-block{ text-align:center; margin-top: 6px; }
-  .title-block h1{
-    font-family: var(--font-display);
-    font-weight: 600;
-    font-size: clamp(28px, 5vw, 40px);
-    letter-spacing: 0.01em;
-    margin: 0;
-    color: var(--chalk);
-  }
-  .title-block p{
-    font-family: var(--font-mono);
-    font-size: 12px;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: var(--brass);
-    margin: 6px 0 0;
-  }
-
-  /* ---------- Panels / cards ---------- */
-  .panel{
-    background: var(--panel);
-    border: 1px solid var(--line);
-    border-radius: var(--radius);
-    padding: 24px;
-    margin-bottom: 18px;
-  }
-  .hidden{ display:none !important; }
-
-  fieldset{ border:none; margin:0 0 22px; padding:0; }
-  legend{
-    font-family: var(--font-mono);
-    font-size: 11px;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    color: var(--brass);
-    margin-bottom: 10px;
-    padding:0;
-  }
-  .legend-sub{
-    font-family: var(--font-body);
-    font-size: 13px;
-    color: var(--chalk-dim);
-    text-transform:none;
-    letter-spacing:0;
-    margin-top:2px;
-    display:block;
-  }
-
-  .check-grid{
-    display:grid;
-    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-    gap: 8px;
-  }
-  .check-item{
-    display:flex; align-items:center; gap:9px;
-    background: var(--panel-raised);
-    border: 1px solid var(--line);
-    border-radius: 8px;
-    padding: 9px 12px;
-    cursor:pointer;
-    user-select:none;
-    transition: border-color .15s ease, background .15s ease;
-  }
-  .check-item:hover{ border-color: var(--brass); }
-  .check-item input{ accent-color: var(--brass); width:16px; height:16px; flex-shrink:0; }
-  .check-item span{ font-size: 14px; }
-  .check-item.checked{ background: var(--brass-soft); border-color: var(--brass); }
-
-  details.more{ margin-top:10px; }
-  details.more summary{
-    cursor:pointer;
-    font-family: var(--font-mono);
-    font-size: 11.5px;
-    letter-spacing:0.06em;
-    color: var(--chalk-dim);
-    text-transform: uppercase;
-    padding: 4px 0;
-  }
-  details.more summary:hover{ color: var(--brass); }
-  details.more .check-grid{ margin-top: 10px; }
-
-  .num-row{ display:flex; align-items:center; gap:14px; }
-  .num-row input[type=number]{
-    width: 84px;
-    background: var(--panel-raised);
-    border: 1px solid var(--line);
-    color: var(--chalk);
-    font-family: var(--font-mono);
-    font-size: 16px;
-    padding: 9px 10px;
-    border-radius: 8px;
-  }
-  .num-row input[type=number]:focus{ outline: 2px solid var(--brass); outline-offset:1px; }
-
-  .error-msg{
-    color: var(--rust);
-    background: var(--rust-soft);
-    border: 1px solid var(--rust);
-    border-radius: 8px;
-    padding: 10px 14px;
-    font-size: 13.5px;
-    margin-bottom: 16px;
-  }
-
-  /* ---------- Buttons ---------- */
-  button{
-    font-family: var(--font-body);
-    cursor:pointer;
-    border: none;
-  }
-  .btn{
-    display:inline-flex; align-items:center; justify-content:center; gap:8px;
-    padding: 13px 26px;
-    border-radius: 8px;
-    font-size: 15px;
-    font-weight: 600;
-    transition: transform .1s ease, background .15s ease, border-color .15s ease;
-  }
-  .btn:active{ transform: translateY(1px); }
-  .btn-primary{ background: var(--brass); color: #1b2419; }
-  .btn-primary:hover{ background: #ddb44a; }
-  .btn-primary:disabled{ background: #4a4a3d; color:#8b8b7d; cursor:not-allowed; }
-  .btn-ghost{
-    background: transparent; color: var(--chalk); border: 1px solid var(--line);
-  }
-  .btn-ghost:hover{ border-color: var(--brass); color: var(--brass); }
-  .btn:focus-visible{ outline: 2px solid var(--brass); outline-offset: 2px; }
-
-  .btn-row{ display:flex; gap:12px; justify-content:center; flex-wrap:wrap; margin-top: 6px; }
-
-  /* ---------- Quiz screen ---------- */
-  .quiz-meta{
-    display:flex; justify-content:space-between; align-items:baseline;
-    font-family: var(--font-mono); font-size:12px; letter-spacing:0.08em;
-    color: var(--chalk-dim); text-transform:uppercase; margin-bottom: 14px;
-  }
-  .quiz-meta .score{ color: var(--brass); }
-
-  .question-text{
-    font-family: var(--font-display);
-    font-size: clamp(19px, 3.2vw, 24px);
-    font-weight: 600;
-    line-height: 1.4;
-    margin: 0 0 22px;
-  }
-  .question-text .hint{
-    display:block;
-    font-family: var(--font-body);
-    font-size: 13px;
-    font-weight: 400;
-    color: var(--chalk-dim);
-    margin-top: 6px;
-  }
-
-  /* Typed answer input */
-  #answerType{ margin-bottom: 18px; }
-  .note-boxes{
-    display:flex;
-    flex-wrap:wrap;
-    gap: 10px;
-    justify-content:center;
-    margin-bottom: 10px;
-  }
-  .note-box{
-    width: 56px;
-    height: 56px;
-    text-align:center;
-    background: var(--panel-raised);
-    border: 1px solid var(--line);
-    color: var(--chalk);
-    font-family: var(--font-mono);
-    font-size: 20px;
-    font-weight: 700;
-    letter-spacing: 0;
-    border-radius: 8px;
-    text-transform: none;
-    caret-color: var(--brass);
-  }
-  .note-box:focus{ outline: 2px solid var(--brass); outline-offset:1px; border-color: var(--brass); }
-  .note-box:disabled{ opacity:0.65; }
-  .note-box.box-correct{ background: var(--moss-soft) !important; border-color: var(--moss) !important; }
-  .note-box.box-wrong{ background: var(--rust-soft) !important; border-color: var(--rust) !important; }
-  .type-hint{ font-size:12.5px; color: var(--chalk-dim); margin-top:8px; text-align:center; }
-  .type-error{ font-size:13px; color: var(--rust); margin-top:8px; text-align:center; }
-  .reveal-label{
-    font-family: var(--font-mono);
-    font-size: 11px;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: var(--chalk-dim);
-    margin-bottom: 10px;
-  }
-
-  /* Piano keyboard */
-  .keyboard{
-    position:relative;
-    width:100%;
-    max-width: 480px;
-    height: 170px;
-    margin: 0 auto 18px;
-    display:flex;
-  }
-  .white-key{
-    position:relative;
-    flex:1;
-    background: var(--key-white);
-    border: 1px solid #00000030;
-    border-radius: 0 0 6px 6px;
-    display:flex;
-    align-items:flex-end;
-    justify-content:center;
-    padding-bottom: 10px;
-    z-index:1;
-    transition: background .12s ease;
-  }
-  .white-key:not(:first-child){ margin-left: -1px; }
-  .white-key span{
-    font-family: var(--font-mono);
-    font-size: 12px;
-    color: #2c2c26;
-    pointer-events:none;
-  }
-  .black-key{
-    position:absolute;
-    top:0;
-    width: 8.6%;
-    height: 60%;
-    background: var(--key-black);
-    border-radius: 0 0 5px 5px;
-    z-index:2;
-    display:flex;
-    align-items:flex-end;
-    justify-content:center;
-    padding-bottom: 8px;
-    transition: background .12s ease;
-  }
-  .black-key span{
-    font-family: var(--font-mono);
-    font-size: 10px;
-    color: var(--chalk-dim);
-    pointer-events:none;
-  }
-  .white-key:hover{ background: #e4ddc9; }
-  .black-key:hover{ background: #26362c; }
-
-  .white-key.selected{ background: var(--brass); }
-  .black-key.selected{ background: var(--brass); }
-  .black-key.selected span, .white-key.selected span{ color: #1b2419; }
-
-  .white-key.correct, .black-key.correct{ background: var(--moss) !important; }
-  .white-key.correct span, .black-key.correct span{ color:#132014; }
-  .white-key.missed, .black-key.missed{
-    background: var(--key-white) !important;
-    box-shadow: inset 0 0 0 3px var(--brass);
-  }
-  .black-key.missed{ background: var(--key-black) !important; box-shadow: inset 0 0 0 3px var(--brass); }
-  .white-key.wrong, .black-key.wrong{ background: var(--rust) !important; }
-  .white-key.wrong span, .black-key.wrong span{ color:#2a0e08; }
-  .keyboard.locked .white-key, .keyboard.locked .black-key{ cursor:default; }
-
-  .selection-row{
-    min-height: 30px;
-    display:flex; flex-wrap:wrap; gap:8px; justify-content:center;
-    margin-bottom: 20px;
-  }
-  .chip{
-    font-family: var(--font-mono);
-    font-size: 13px;
-    background: var(--panel-raised);
-    border: 1px solid var(--brass);
-    color: var(--brass);
-    padding: 4px 10px;
-    border-radius: 999px;
-  }
-  .chip.placeholder{ color: var(--chalk-dim); border-color: var(--line); }
-
-  .feedback{
-    border-radius: 8px;
-    padding: 14px 16px;
-    margin-bottom: 18px;
-    font-size: 14.5px;
-    line-height:1.5;
-  }
-  .feedback.correct{ background: var(--moss-soft); border:1px solid var(--moss); }
-  .feedback.wrong{ background: var(--rust-soft); border:1px solid var(--rust); }
-  .feedback b{ font-family: var(--font-mono); }
-  .feedback .spelling-note{
-    display:block;
-    margin-top: 6px;
-    font-family: var(--font-body);
-    font-size: 13px;
-    font-style: italic;
-    color: var(--brass);
-  }
-
-  .quiz-actions{ display:flex; justify-content:center; gap:12px; }
-
-  /* ---------- Results ---------- */
-  .score-hero{ text-align:center; margin-bottom: 24px; }
-  .score-hero .big{
-    font-family: var(--font-display);
-    font-size: clamp(48px, 10vw, 72px);
-    font-weight: 700;
-    color: var(--brass);
-    line-height:1;
-  }
-  .score-hero .sub{ color: var(--chalk-dim); font-size:14px; margin-top:8px; }
-
-  .review-list{ display:flex; flex-direction:column; gap:8px; margin-bottom:20px; }
-  .review-item{
-    display:flex; justify-content:space-between; gap:12px;
-    background: var(--panel-raised);
-    border: 1px solid var(--line);
-    border-left: 3px solid var(--line);
-    border-radius: 6px;
-    padding: 10px 14px;
-    font-size: 13.5px;
-  }
-  .review-item.is-correct{ border-left-color: var(--moss); }
-  .review-item.is-wrong{ border-left-color: var(--rust); }
-  .review-item .q{ color: var(--chalk); }
-  .review-item .a{ font-family: var(--font-mono); color: var(--chalk-dim); white-space:nowrap; }
-
-  footer{ text-align:center; margin-top: 26px; font-size:12px; color: var(--chalk-dim); }
-
-  @media (max-width: 480px){
-    .panel{ padding:18px; }
-    .keyboard{ height: 140px; }
-  }
-</style>
+<link rel="stylesheet" href="style.css?v=3">
 </head>
 <body>
 <div id="app" x-data="quizApp()" x-cloak>
@@ -600,8 +194,41 @@
     <div class="review-list">
       <template x-for="(q, i) in questions" :key="i">
         <div class="review-item" :class="results[i] ? 'is-correct' : 'is-wrong'">
-          <span class="q" x-text="sentenceFor(q)"></span>
-          <span class="a" x-text="answerListFor(q)"></span>
+          <div class="review-row" role="button" tabindex="0" :aria-expanded="resultsExpanded[i]"
+               @click="toggleResultRow(i)" @keydown.enter="toggleResultRow(i)" @keydown.space.prevent="toggleResultRow(i)">
+            <span class="q" x-text="sentenceFor(q)"></span>
+            <svg class="chevron" :class="{ expanded: resultsExpanded[i] }" viewBox="0 0 24 24" width="16" height="16"
+                 fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="6 9 12 15 18 9"></polyline>
+            </svg>
+          </div>
+          <div class="review-detail" x-show="resultsExpanded[i]">
+            <table class="detail-table">
+              <tr>
+                <td class="detail-label" x-text="t('YOUR_ANSWER')"></td>
+                <td>
+                  <div class="detail-chips">
+                    <template x-if="reviewUserNotes(i).length === 0">
+                      <span class="detail-empty" x-text="t('NO_SELECTION')"></span>
+                    </template>
+                    <template x-for="n in reviewUserNotes(i)" :key="n.note">
+                      <span class="detail-chip" :class="n.status" x-text="displayNote(n.note)"></span>
+                    </template>
+                  </div>
+                </td>
+              </tr>
+              <tr>
+                <td class="detail-label" x-text="t('CORRECT_ANSWER')"></td>
+                <td>
+                  <div class="detail-chips">
+                    <template x-for="n in reviewCorrectNotes(i)" :key="n.note">
+                      <span class="detail-chip" :class="n.status" x-text="displayNote(n.note)"></span>
+                    </template>
+                  </div>
+                </td>
+              </tr>
+            </table>
+          </div>
         </div>
       </template>
     </div>
@@ -615,7 +242,7 @@
 </div>
 
 <script src="alpine.min.js" defer></script>
-<script src="localization.js"></script>
-<script src="index.js"></script>
+<script src="localization.js?v=3"></script>
+<script src="index.js?v=3"></script>
 </body>
 </html>

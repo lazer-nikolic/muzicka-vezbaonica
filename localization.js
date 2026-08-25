@@ -6,14 +6,22 @@
 (function(){
 "use strict";
 
-const NOTES = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
+// NOTES.en is the canonical (English/sharp) pitch-class array — used internally for all
+// matching, storage, and sorting, regardless of the active display language. NOTES[lang]
+// gives the display spelling for that language. Serbian practice uses H for natural B and
+// B for A#/Bb, so NOTES.sr substitutes those two entries; everything else is unchanged.
+const NOTES = {
+  en: ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'],
+  sr: ['C','C#','D','D#','E','F','F#','G','G#','A','B','H'],
+};
 
-// Canonical (English/sharp) letter names are used internally for all matching and storage.
-// Serbian practice uses H for natural B and B for A#/Bb — normalizeNote accepts both
-// vocabularies depending on the active language, but always resolves to the canonical name.
-const LETTER_BASE_EN = { C:0, D:2, E:4, F:5, G:7, A:9, B:11 };
-const LETTER_BASE_SR = { C:0, D:2, E:4, F:5, G:7, A:9, B:10, H:11 };
-const NOTES_DISPLAY_SR = ['C','C#','D','D#','E','F','F#','G','G#','A','B','H'];
+// Maps each language's note letters to a semitone offset from C. normalizeNote() uses
+// LETTER_BASE[lang] to interpret typed input, but always resolves to the canonical
+// NOTES.en name — the letter vocabulary differs by language, the stored value never does.
+const LETTER_BASE = {
+  en: { C:0, D:2, E:4, F:5, G:7, A:9, B:11 },
+  sr: { C:0, D:2, E:4, F:5, G:7, A:9, B:10, H:11 },
+};
 
 const labels = {
   en: {
@@ -32,6 +40,7 @@ const labels = {
     CLEAR_BTN: 'Clear', SUBMIT_BTN: 'Submit', NEXT_BTN: 'Next question', RESULTS_BTN: 'See results',
     REVEAL_LABEL: 'On the keyboard:',
     CORRECT_FEEDBACK: 'Correct.', WRONG_FEEDBACK: 'Not quite.', ANSWER_IS_LABEL: 'The answer is',
+    YOUR_ANSWER: 'Your answer', CORRECT_ANSWER: 'Correct answer',
     SCORE_LABEL: 'Score',
     QUESTION_OF: 'Question {i} / {n}',
     RESULTS_SUB: '{pct}% correct',
@@ -74,6 +83,7 @@ const labels = {
     CLEAR_BTN: 'Obriši', SUBMIT_BTN: 'Potvrdi', NEXT_BTN: 'Sledeće pitanje', RESULTS_BTN: 'Prikaži rezultat',
     REVEAL_LABEL: 'Na klavijaturi:',
     CORRECT_FEEDBACK: 'Tačno.', WRONG_FEEDBACK: 'Nije tačno.', ANSWER_IS_LABEL: 'Tačan odgovor je',
+    YOUR_ANSWER: 'Tvoj odgovor', CORRECT_ANSWER: 'Tačan odgovor',
     SCORE_LABEL: 'Rezultat',
     QUESTION_OF: 'Pitanje {i} / {n}',
     RESULTS_SUB: '{pct}% tačno',
@@ -122,15 +132,15 @@ function ordinal(lang, n){
 }
 
 function displayNote(lang, note){
-  if (lang !== 'sr') return note;
-  return NOTES_DISPLAY_SR[NOTES.indexOf(note)];
+  const idx = NOTES.en.indexOf(note);
+  return (NOTES[lang] || NOTES.en)[idx];
 }
 
 function normalizeNote(lang, token){
   if (!token) return null;
   token = token.trim();
   if (!token) return null;
-  const letterBase = lang === 'sr' ? LETTER_BASE_SR : LETTER_BASE_EN;
+  const letterBase = LETTER_BASE[lang] || LETTER_BASE.en;
   const letter = token[0].toUpperCase();
   if (!(letter in letterBase)) return null;
   const rest = token.slice(1).toLowerCase();
@@ -140,13 +150,17 @@ function normalizeNote(lang, token){
   else if (rest === 'b' || rest === 'f' || rest === 'flat') accidental = -1;
   else return null;
   const pitch = (letterBase[letter] + accidental + 12) % 12;
-  return NOTES[pitch];
+  return NOTES.en[pitch];
 }
 
 // Restricts what characters a note-input box will accept while typing, per language
-// (Serbian typing allows the letter H in addition to A-G).
+// (Serbian typing allows the letter H in addition to A-G). The allowed letters are
+// derived straight from LETTER_BASE[lang], so adding a language elsewhere in this
+// file automatically updates what its input boxes will accept — nothing hardcoded here.
 function sanitizeBoxValue(lang, raw){
-  const letterChars = lang === 'sr' ? 'A-Ha-h' : 'A-Ga-g';
+  const letterBase = LETTER_BASE[lang] || LETTER_BASE.en;
+  const letters = Object.keys(letterBase).join('');
+  const letterChars = letters + letters.toLowerCase();
   const cleaned = raw.replace(new RegExp('[^' + letterChars + '#b]', 'g'), '');
   let letter = '', accidental = '';
   if (cleaned.length > 0) letter = cleaned[0].toUpperCase();
@@ -159,7 +173,7 @@ function sanitizeBoxValue(lang, raw){
 }
 
 window.MusicLocale = {
-  NOTES, LETTER_BASE_EN, LETTER_BASE_SR, NOTES_DISPLAY_SR, labels,
+  NOTES, LETTER_BASE, labels,
   t, chordLabel, scaleLabel, questionTypeLabel, ordinal,
   displayNote, normalizeNote, sanitizeBoxValue,
 };
