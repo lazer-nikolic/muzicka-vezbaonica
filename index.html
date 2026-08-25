@@ -1,0 +1,1373 @@
+<!DOCTYPE html>
+<html lang="sr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Woodshed — Scale &amp; Chord Drill</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='rgb(22,33,27)'/><text x='50' y='78' font-family='Georgia,serif' font-size='82' font-weight='700' text-anchor='middle' fill='rgb(205,164,58)'>𝄞</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Work+Sans:wght@400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #16211b;
+    --panel: #1e2b23;
+    --panel-raised: #24352b;
+    --line: #3a4c40;
+    --chalk: #f1ece0;
+    --chalk-dim: #b9c2b7;
+    --brass: #cda43a;
+    --brass-soft: #cda43a33;
+    --moss: #7fa65b;
+    --moss-soft: #7fa65b26;
+    --rust: #c1614a;
+    --rust-soft: #c1614a26;
+    --key-white: #f1ece0;
+    --key-black: #14201a;
+    --radius: 10px;
+    --font-display: 'Fraunces', Georgia, 'Times New Roman', serif;
+    --font-body: 'Work Sans', -apple-system, Segoe UI, sans-serif;
+    --font-mono: 'Space Mono', 'Courier New', monospace;
+  }
+
+  *{ box-sizing: border-box; }
+  html,body{ margin:0; padding:0; }
+  body{
+    background: var(--bg);
+    background-image:
+      radial-gradient(ellipse at 20% -10%, #2a3a2e 0%, transparent 55%),
+      radial-gradient(ellipse at 100% 0%, #24322a 0%, transparent 45%);
+    color: var(--chalk);
+    font-family: var(--font-body);
+    min-height: 100vh;
+    display:flex;
+    justify-content:center;
+    padding: 28px 16px 60px;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  #app{ width:100%; max-width: 720px; position:relative; }
+
+  .top-bar{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 6px;
+  }
+  #goBackBtn{ padding: 10px 20px; font-size: 14px; }
+
+  .lang-switch{
+    display:flex; gap:6px;
+  }
+  .lang-btn{
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.06em;
+    background: transparent;
+    color: var(--chalk-dim);
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    padding: 5px 10px;
+    transition: border-color .15s ease, color .15s ease, background .15s ease;
+  }
+  .lang-btn:hover{ border-color: var(--brass); color: var(--brass); }
+  .lang-btn.active{ background: var(--brass-soft); border-color: var(--brass); color: var(--brass); }
+  .lang-btn:focus-visible{ outline: 2px solid var(--brass); outline-offset: 2px; }
+
+  /* ---------- Staff header (signature element) ---------- */
+  .staff-header{ margin-bottom: 28px; }
+  .staff-wrap{ width:100%; }
+  .staff-wrap svg{ width:100%; height:auto; display:block; }
+  .staff-line{ stroke: var(--line); stroke-width:1.5; }
+  .clef{ fill: var(--brass); }
+  .note-mark circle{ transition: opacity .25s ease; }
+
+  .title-block{ text-align:center; margin-top: 6px; }
+  .title-block h1{
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: clamp(28px, 5vw, 40px);
+    letter-spacing: 0.01em;
+    margin: 0;
+    color: var(--chalk);
+  }
+  .title-block p{
+    font-family: var(--font-mono);
+    font-size: 12px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--brass);
+    margin: 6px 0 0;
+  }
+
+  /* ---------- Panels / cards ---------- */
+  .panel{
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 24px;
+    margin-bottom: 18px;
+  }
+  .hidden{ display:none !important; }
+
+  fieldset{ border:none; margin:0 0 22px; padding:0; }
+  legend{
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--brass);
+    margin-bottom: 10px;
+    padding:0;
+  }
+  .legend-sub{
+    font-family: var(--font-body);
+    font-size: 13px;
+    color: var(--chalk-dim);
+    text-transform:none;
+    letter-spacing:0;
+    margin-top:2px;
+    display:block;
+  }
+
+  .check-grid{
+    display:grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 8px;
+  }
+  .check-item{
+    display:flex; align-items:center; gap:9px;
+    background: var(--panel-raised);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 9px 12px;
+    cursor:pointer;
+    user-select:none;
+    transition: border-color .15s ease, background .15s ease;
+  }
+  .check-item:hover{ border-color: var(--brass); }
+  .check-item input{ accent-color: var(--brass); width:16px; height:16px; flex-shrink:0; }
+  .check-item span{ font-size: 14px; }
+  .check-item.checked{ background: var(--brass-soft); border-color: var(--brass); }
+
+  details.more{ margin-top:10px; }
+  details.more summary{
+    cursor:pointer;
+    font-family: var(--font-mono);
+    font-size: 11.5px;
+    letter-spacing:0.06em;
+    color: var(--chalk-dim);
+    text-transform: uppercase;
+    padding: 4px 0;
+  }
+  details.more summary:hover{ color: var(--brass); }
+  details.more .check-grid{ margin-top: 10px; }
+
+  .num-row{ display:flex; align-items:center; gap:14px; }
+  .num-row input[type=number]{
+    width: 84px;
+    background: var(--panel-raised);
+    border: 1px solid var(--line);
+    color: var(--chalk);
+    font-family: var(--font-mono);
+    font-size: 16px;
+    padding: 9px 10px;
+    border-radius: 8px;
+  }
+  .num-row input[type=number]:focus{ outline: 2px solid var(--brass); outline-offset:1px; }
+
+  .error-msg{
+    color: var(--rust);
+    background: var(--rust-soft);
+    border: 1px solid var(--rust);
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-size: 13.5px;
+    margin-bottom: 16px;
+  }
+
+  /* ---------- Buttons ---------- */
+  button{
+    font-family: var(--font-body);
+    cursor:pointer;
+    border: none;
+  }
+  .btn{
+    display:inline-flex; align-items:center; justify-content:center; gap:8px;
+    padding: 13px 26px;
+    border-radius: 8px;
+    font-size: 15px;
+    font-weight: 600;
+    transition: transform .1s ease, background .15s ease, border-color .15s ease;
+  }
+  .btn:active{ transform: translateY(1px); }
+  .btn-primary{ background: var(--brass); color: #1b2419; }
+  .btn-primary:hover{ background: #ddb44a; }
+  .btn-primary:disabled{ background: #4a4a3d; color:#8b8b7d; cursor:not-allowed; }
+  .btn-ghost{
+    background: transparent; color: var(--chalk); border: 1px solid var(--line);
+  }
+  .btn-ghost:hover{ border-color: var(--brass); color: var(--brass); }
+  .btn:focus-visible{ outline: 2px solid var(--brass); outline-offset: 2px; }
+
+  .btn-row{ display:flex; gap:12px; justify-content:center; flex-wrap:wrap; margin-top: 6px; }
+
+  /* ---------- Quiz screen ---------- */
+  .quiz-meta{
+    display:flex; justify-content:space-between; align-items:baseline;
+    font-family: var(--font-mono); font-size:12px; letter-spacing:0.08em;
+    color: var(--chalk-dim); text-transform:uppercase; margin-bottom: 14px;
+  }
+  .quiz-meta .score{ color: var(--brass); }
+
+  .question-text{
+    font-family: var(--font-display);
+    font-size: clamp(19px, 3.2vw, 24px);
+    font-weight: 600;
+    line-height: 1.4;
+    margin: 0 0 22px;
+  }
+  .question-text .hint{
+    display:block;
+    font-family: var(--font-body);
+    font-size: 13px;
+    font-weight: 400;
+    color: var(--chalk-dim);
+    margin-top: 6px;
+  }
+
+  /* Typed answer input */
+  #answerType{ margin-bottom: 18px; }
+  .note-boxes{
+    display:flex;
+    flex-wrap:wrap;
+    gap: 10px;
+    justify-content:center;
+    margin-bottom: 10px;
+  }
+  .note-box{
+    width: 56px;
+    height: 56px;
+    text-align:center;
+    background: var(--panel-raised);
+    border: 1px solid var(--line);
+    color: var(--chalk);
+    font-family: var(--font-mono);
+    font-size: 20px;
+    font-weight: 700;
+    letter-spacing: 0;
+    border-radius: 8px;
+    text-transform: none;
+    caret-color: var(--brass);
+  }
+  .note-box:focus{ outline: 2px solid var(--brass); outline-offset:1px; border-color: var(--brass); }
+  .note-box:disabled{ opacity:0.65; }
+  .note-box.box-correct{ background: var(--moss-soft) !important; border-color: var(--moss) !important; }
+  .note-box.box-wrong{ background: var(--rust-soft) !important; border-color: var(--rust) !important; }
+  .type-hint{ font-size:12.5px; color: var(--chalk-dim); margin-top:8px; text-align:center; }
+  .type-error{ font-size:13px; color: var(--rust); margin-top:8px; text-align:center; }
+  .reveal-label{
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--chalk-dim);
+    margin-bottom: 10px;
+  }
+
+  /* Piano keyboard */
+  .keyboard{
+    position:relative;
+    width:100%;
+    max-width: 480px;
+    height: 170px;
+    margin: 0 auto 18px;
+    display:flex;
+  }
+  .white-key{
+    position:relative;
+    flex:1;
+    background: var(--key-white);
+    border: 1px solid #00000030;
+    border-radius: 0 0 6px 6px;
+    display:flex;
+    align-items:flex-end;
+    justify-content:center;
+    padding-bottom: 10px;
+    z-index:1;
+    transition: background .12s ease;
+  }
+  .white-key:not(:first-child){ margin-left: -1px; }
+  .white-key span{
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: #2c2c26;
+    pointer-events:none;
+  }
+  .black-key{
+    position:absolute;
+    top:0;
+    width: 8.6%;
+    height: 60%;
+    background: var(--key-black);
+    border-radius: 0 0 5px 5px;
+    z-index:2;
+    display:flex;
+    align-items:flex-end;
+    justify-content:center;
+    padding-bottom: 8px;
+    transition: background .12s ease;
+  }
+  .black-key span{
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--chalk-dim);
+    pointer-events:none;
+  }
+  .white-key:hover{ background: #e4ddc9; }
+  .black-key:hover{ background: #26362c; }
+
+  .white-key.selected{ background: var(--brass); }
+  .black-key.selected{ background: var(--brass); }
+  .black-key.selected span, .white-key.selected span{ color: #1b2419; }
+
+  .white-key.correct, .black-key.correct{ background: var(--moss) !important; }
+  .white-key.correct span, .black-key.correct span{ color:#132014; }
+  .white-key.missed, .black-key.missed{
+    background: var(--key-white) !important;
+    box-shadow: inset 0 0 0 3px var(--brass);
+  }
+  .black-key.missed{ background: var(--key-black) !important; box-shadow: inset 0 0 0 3px var(--brass); }
+  .white-key.wrong, .black-key.wrong{ background: var(--rust) !important; }
+  .white-key.wrong span, .black-key.wrong span{ color:#2a0e08; }
+  .keyboard.locked .white-key, .keyboard.locked .black-key{ cursor:default; }
+
+  .selection-row{
+    min-height: 30px;
+    display:flex; flex-wrap:wrap; gap:8px; justify-content:center;
+    margin-bottom: 20px;
+  }
+  .chip{
+    font-family: var(--font-mono);
+    font-size: 13px;
+    background: var(--panel-raised);
+    border: 1px solid var(--brass);
+    color: var(--brass);
+    padding: 4px 10px;
+    border-radius: 999px;
+  }
+  .chip.placeholder{ color: var(--chalk-dim); border-color: var(--line); }
+
+  .feedback{
+    border-radius: 8px;
+    padding: 14px 16px;
+    margin-bottom: 18px;
+    font-size: 14.5px;
+    line-height:1.5;
+  }
+  .feedback.correct{ background: var(--moss-soft); border:1px solid var(--moss); }
+  .feedback.wrong{ background: var(--rust-soft); border:1px solid var(--rust); }
+  .feedback b{ font-family: var(--font-mono); }
+  .feedback .spelling-note{
+    display:block;
+    margin-top: 6px;
+    font-family: var(--font-body);
+    font-size: 13px;
+    font-style: italic;
+    color: var(--brass);
+  }
+
+  .quiz-actions{ display:flex; justify-content:center; gap:12px; }
+
+  /* ---------- Results ---------- */
+  .score-hero{ text-align:center; margin-bottom: 24px; }
+  .score-hero .big{
+    font-family: var(--font-display);
+    font-size: clamp(48px, 10vw, 72px);
+    font-weight: 700;
+    color: var(--brass);
+    line-height:1;
+  }
+  .score-hero .sub{ color: var(--chalk-dim); font-size:14px; margin-top:8px; }
+
+  .review-list{ display:flex; flex-direction:column; gap:8px; margin-bottom:20px; }
+  .review-item{
+    display:flex; justify-content:space-between; gap:12px;
+    background: var(--panel-raised);
+    border: 1px solid var(--line);
+    border-left: 3px solid var(--line);
+    border-radius: 6px;
+    padding: 10px 14px;
+    font-size: 13.5px;
+  }
+  .review-item.is-correct{ border-left-color: var(--moss); }
+  .review-item.is-wrong{ border-left-color: var(--rust); }
+  .review-item .q{ color: var(--chalk); }
+  .review-item .a{ font-family: var(--font-mono); color: var(--chalk-dim); white-space:nowrap; }
+
+  footer{ text-align:center; margin-top: 26px; font-size:12px; color: var(--chalk-dim); }
+
+  @media (max-width: 480px){
+    .panel{ padding:18px; }
+    .keyboard{ height: 140px; }
+  }
+</style>
+</head>
+<body>
+<div id="app">
+
+  <div class="top-bar">
+    <button type="button" class="btn btn-ghost hidden" id="goBackBtn">← <span id="goBackLabel">Back</span></button>
+    <div class="lang-switch" id="langSwitch">
+      <button type="button" class="lang-btn" data-lang="en">EN</button>
+      <button type="button" class="lang-btn" data-lang="sr">SR</button>
+    </div>
+  </div>
+
+  <div class="staff-header">
+    <div class="staff-wrap"><svg id="staffSvg" viewBox="0 0 700 90" preserveAspectRatio="xMidYMid meet"></svg></div>
+    <div class="title-block">
+      <h1 id="appTitle">The Woodshed</h1>
+      <p id="appSubtitle">Scale &amp; chord drill</p>
+    </div>
+  </div>
+
+  <!-- SETUP SCREEN -->
+  <section id="setup-screen" class="panel">
+    <div id="setup-error" class="error-msg hidden"></div>
+
+    <fieldset>
+      <legend id="legendTypes">Question types<span class="legend-sub" id="legendTypesSub">Pick one or more.</span></legend>
+      <div class="check-grid" id="typeGrid"></div>
+    </fieldset>
+
+    <fieldset>
+      <legend id="legendInput">Answer input<span class="legend-sub" id="legendInputSub">Type note names, or use the piano.</span></legend>
+      <div class="check-grid" id="inputModeGrid" role="radiogroup"></div>
+    </fieldset>
+
+    <fieldset id="chordFieldset">
+      <legend id="legendChords">Chords<span class="legend-sub" id="legendChordsSub">Used for "notes in a chord" questions.</span></legend>
+      <div class="check-grid" id="chordGrid"></div>
+      <details class="more">
+        <summary id="moreChords">More chords</summary>
+        <div class="check-grid" id="chordGridMore"></div>
+      </details>
+    </fieldset>
+
+    <fieldset id="scaleFieldset">
+      <legend id="legendScales">Scales<span class="legend-sub" id="legendScalesSub">Used for "notes in a scale" and "nth note" questions.</span></legend>
+      <div class="check-grid" id="scaleGrid"></div>
+      <details class="more">
+        <summary id="moreScales">Other common scales</summary>
+        <div class="check-grid" id="scaleGridMore"></div>
+      </details>
+    </fieldset>
+
+    <fieldset>
+      <legend id="legendLength">Length</legend>
+      <div class="num-row">
+        <input type="number" id="questionCount" value="10" min="3" max="30">
+        <span style="color:var(--chalk-dim); font-size:13px;" id="lengthUnitLabel">questions</span>
+      </div>
+    </fieldset>
+
+    <div class="btn-row">
+      <button class="btn btn-primary" id="startBtn">Start drill</button>
+    </div>
+  </section>
+
+  <!-- QUIZ SCREEN -->
+  <section id="quiz-screen" class="panel hidden">
+    <div class="quiz-meta">
+      <span id="quizProgress">Question 1 / 10</span>
+      <span class="score" id="quizScore">Score: 0</span>
+    </div>
+
+    <p class="question-text" id="questionText"></p>
+
+    <div id="answerType">
+      <div class="note-boxes" id="noteBoxes"></div>
+      <div class="type-hint" id="typeHintText">Type one note per box — use # or b for sharp or flat.</div>
+      <div class="type-error hidden" id="typeError"></div>
+    </div>
+
+    <div id="keyboardRevealLabel" class="reveal-label hidden">On the keyboard:</div>
+    <div class="keyboard hidden" id="keyboard"></div>
+    <div class="selection-row" id="selectionRow"></div>
+
+    <div id="feedbackBox"></div>
+
+    <div class="quiz-actions" id="quizActions">
+      <button class="btn btn-ghost" id="clearBtn">Clear</button>
+      <button class="btn btn-primary" id="submitBtn" disabled>Submit</button>
+    </div>
+  </section>
+
+  <!-- RESULTS SCREEN -->
+  <section id="results-screen" class="panel hidden">
+    <div class="score-hero">
+      <div class="big" id="resultsBig">0/0</div>
+      <div class="sub" id="resultsSub">correct</div>
+    </div>
+    <div class="review-list" id="reviewList"></div>
+    <div class="btn-row">
+      <button class="btn btn-ghost" id="retryBtn">Same settings</button>
+      <button class="btn btn-primary" id="newQuizBtn">New quiz</button>
+    </div>
+  </section>
+
+  <footer id="footerNote">Notes are spelled with sharps only, to keep things simple.</footer>
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  /* ---------------- Music theory data ---------------- */
+  const NOTES = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
+
+  const CHORD_DEFS = {
+    major:      [0,4,7],
+    minor:      [0,3,7],
+    dominant7:  [0,4,7,10],
+    dim:        [0,3,6],
+    major7:     [0,4,7,11],
+    minor7:     [0,3,7,10],
+    dim7:       [0,3,6,9],
+  };
+  const CHORD_PRIMARY = ['major','minor','dominant7','dim'];
+  const CHORD_MORE    = ['major7','minor7','dim7'];
+
+  const SCALE_DEFS = {
+    major:            [0,2,4,5,7,9,11],
+    minor:            [0,2,3,5,7,8,10],
+    mixolydian:       [0,2,4,5,7,9,10],
+    blues:            [0,3,5,6,7,10],
+    arabic:           [0,1,4,5,7,8,11],
+    dorian:           [0,2,3,5,7,9,10],
+    phrygian:         [0,1,3,5,7,8,10],
+    lydian:           [0,2,4,6,7,9,11],
+    locrian:          [0,1,3,5,6,8,10],
+    harmonic_minor:   [0,2,3,5,7,8,11],
+    melodic_minor:    [0,2,3,5,7,9,11],
+    major_pentatonic: [0,2,4,7,9],
+    minor_pentatonic: [0,3,5,7,10],
+  };
+  const SCALE_PRIMARY = ['major','minor','major_pentatonic','minor_pentatonic','mixolydian','blues','arabic'];
+  const SCALE_MORE    = ['dorian','phrygian','lydian','locrian','harmonic_minor','melodic_minor'];
+
+  const QUESTION_TYPE_KEYS = ['scale','chord','nth'];
+
+  const BLACK_KEY_LEFT = { 'C#':'10%', 'D#':'24.29%', 'F#':'52.86%', 'G#':'67.14%', 'A#':'81.43%' };
+  const WHITE_NOTES = ['C','D','E','F','G','A','B'];
+  const BLACK_NOTES = ['C#','D#','F#','G#','A#'];
+
+  /* ---------------- Localization ---------------- */
+  const labels = {
+    en: {
+      APP_TITLE: 'The Woodshed',
+      APP_SUBTITLE: 'Scale & chord drill',
+      FOOTER_NOTE: 'Notes are spelled with sharps only, to keep things simple.',
+      LEGEND_TYPES: 'Question types', LEGEND_TYPES_SUB: 'Pick one or more.',
+      LEGEND_INPUT: 'Answer input', LEGEND_INPUT_SUB: 'Type note names, or use the piano.',
+      LEGEND_CHORDS: 'Chords', LEGEND_CHORDS_SUB: 'Used for "notes in a chord" questions.',
+      LEGEND_SCALES: 'Scales', LEGEND_SCALES_SUB: 'Used for "notes in a scale" and "nth note" questions.',
+      LEGEND_LENGTH: 'Length', LENGTH_UNIT: 'questions',
+      MORE_CHORDS: 'More chords', MORE_SCALES: 'Other common scales',
+      START_BTN: 'Start drill',
+      INPUT_TYPE_LABEL: 'Type note names', INPUT_PIANO_LABEL: 'Piano keyboard',
+      TYPE_HINT: 'Type one note per box — use # or b for sharp or flat.',
+      CLEAR_BTN: 'Clear', SUBMIT_BTN: 'Submit', NEXT_BTN: 'Next question', RESULTS_BTN: 'See results',
+      REVEAL_LABEL: 'On the keyboard:',
+      CORRECT_FEEDBACK: 'Correct.', WRONG_FEEDBACK: 'Not quite.', ANSWER_IS_LABEL: 'The answer is',
+      SCORE_LABEL: 'Score',
+      QUESTION_OF: 'Question {i} / {n}',
+      RESULTS_SUB: '{pct}% correct',
+      RETRY_BTN: 'Same settings', NEW_QUIZ_BTN: 'New quiz',
+      ERR_NO_TYPE: 'Pick at least one question type.',
+      ERR_NO_CHORD: 'Pick at least one chord — "notes in a chord" needs one.',
+      ERR_NO_SCALE: "Pick at least one scale — that's needed for scale and nth-note questions.",
+      ERR_NOT_RECOGNIZED: "Didn't recognize: {list}",
+      ERR_DUPLICATE_NOTE: 'The same note was entered twice.',
+      SPELLING_PAIR: '{typed} is written as {canonical}',
+      SPELLING_NOTE: "That's correct — though in this scale {pairs}.",
+      GO_BACK_BTN: 'Back',
+      NO_SELECTION: 'No notes selected yet',
+      QTYPE_SCALE: 'Notes in a scale', QTYPE_CHORD: 'Notes in a chord', QTYPE_NTH: 'Note by scale degree',
+      HINT_COUNT_ROOT: 'Counting the root as the 1st note.',
+      SENTENCE_SCALE: 'Select all the notes in the {root} {label} scale.',
+      SENTENCE_CHORD: 'Select all the notes in the {root} {label} chord.',
+      SENTENCE_NTH: 'What is the {ord} note of the {root} {label} scale?',
+      CHORD_MAJOR: 'Major', CHORD_MINOR: 'Minor', CHORD_DOMINANT7: 'Dominant 7th', CHORD_DIM: 'Diminished',
+      CHORD_MAJOR7: 'Major 7th', CHORD_MINOR7: 'Minor 7th', CHORD_DIM7: 'Diminished 7th',
+      SCALE_MAJOR: 'Major (Ionian)', SCALE_MINOR: 'Natural Minor (Aeolian)', SCALE_MIXOLYDIAN: 'Mixolydian',
+      SCALE_BLUES: 'Blues', SCALE_ARABIC: 'Arabic (Double Harmonic)', SCALE_DORIAN: 'Dorian',
+      SCALE_PHRYGIAN: 'Phrygian', SCALE_LYDIAN: 'Lydian', SCALE_LOCRIAN: 'Locrian',
+      SCALE_HARMONIC_MINOR: 'Harmonic Minor', SCALE_MELODIC_MINOR: 'Melodic Minor',
+      SCALE_MAJOR_PENTATONIC: 'Major Pentatonic', SCALE_MINOR_PENTATONIC: 'Minor Pentatonic',
+    },
+    sr: {
+      APP_TITLE: 'Vežbaonica',
+      APP_SUBTITLE: 'Vežba skala i akorda',
+      FOOTER_NOTE: 'Note su zapisane samo pomoću povišilica (#), radi jednostavnosti.',
+      LEGEND_TYPES: 'Tipovi pitanja', LEGEND_TYPES_SUB: 'Izaberi jedan ili više.',
+      LEGEND_INPUT: 'Unos odgovora', LEGEND_INPUT_SUB: 'Otkucaj imena nota ili koristi klavijaturu.',
+      LEGEND_CHORDS: 'Akordi', LEGEND_CHORDS_SUB: 'Koristi se za pitanja "note u akordu".',
+      LEGEND_SCALES: 'Skale', LEGEND_SCALES_SUB: 'Koristi se za pitanja "note u skali" i "nota po stepenu skale".',
+      LEGEND_LENGTH: 'Dužina', LENGTH_UNIT: 'pitanja',
+      MORE_CHORDS: 'Više akorda', MORE_SCALES: 'Ostale uobičajene skale',
+      START_BTN: 'Počni vežbu',
+      INPUT_TYPE_LABEL: 'Otkucaj imena nota', INPUT_PIANO_LABEL: 'Klavijatura',
+      TYPE_HINT: 'Upiši po jednu notu u svako polje — koristi # ili b za povišilicu ili snizilicu. Napomena: H je h-ton, a B je a#.',
+      CLEAR_BTN: 'Obriši', SUBMIT_BTN: 'Potvrdi', NEXT_BTN: 'Sledeće pitanje', RESULTS_BTN: 'Prikaži rezultat',
+      REVEAL_LABEL: 'Na klavijaturi:',
+      CORRECT_FEEDBACK: 'Tačno.', WRONG_FEEDBACK: 'Nije tačno.', ANSWER_IS_LABEL: 'Tačan odgovor je',
+      SCORE_LABEL: 'Rezultat',
+      QUESTION_OF: 'Pitanje {i} / {n}',
+      RESULTS_SUB: '{pct}% tačno',
+      RETRY_BTN: 'Ista podešavanja', NEW_QUIZ_BTN: 'Novi kviz',
+      ERR_NO_TYPE: 'Izaberi bar jedan tip pitanja.',
+      ERR_NO_CHORD: 'Izaberi bar jedan akord — potreban je za pitanja "note u akordu".',
+      ERR_NO_SCALE: 'Izaberi bar jednu skalu — potrebna je za pitanja o skali i o stepenu note.',
+      ERR_NOT_RECOGNIZED: 'Nepoznato: {list}',
+      ERR_DUPLICATE_NOTE: 'Ista nota je upisana dva puta.',
+      SPELLING_PAIR: '{typed} se piše kao {canonical}',
+      SPELLING_NOTE: 'Odgovor je tačan, ali u ovoj skali {pairs}.',
+      GO_BACK_BTN: 'Nazad',
+      NO_SELECTION: 'Još nije izabrana nijedna nota',
+      QTYPE_SCALE: 'Note u skali', QTYPE_CHORD: 'Note u akordu', QTYPE_NTH: 'Nota po stepenu skale',
+      HINT_COUNT_ROOT: 'Osnovni ton se računa kao prva nota.',
+      SENTENCE_SCALE: 'Izaberi sve note u {root} {label} skali.',
+      SENTENCE_CHORD: 'Izaberi sve note u {root} {label} akordu.',
+      SENTENCE_NTH: 'Koja je {ord} nota {root} {label} skale?',
+      CHORD_MAJOR: 'Dur', CHORD_MINOR: 'Mol', CHORD_DOMINANT7: 'Dominantni septakord', CHORD_DIM: 'Umanjeni',
+      CHORD_MAJOR7: 'Veliki septakord', CHORD_MINOR7: 'Mali septakord', CHORD_DIM7: 'Umanjeni septakord',
+      SCALE_MAJOR: 'Dur (jonski)', SCALE_MINOR: 'Prirodni mol (eolski)', SCALE_MIXOLYDIAN: 'Miksolidijski',
+      SCALE_BLUES: 'Bluz', SCALE_ARABIC: 'Arapska (dvostruko harmonijska)', SCALE_DORIAN: 'Dorski',
+      SCALE_PHRYGIAN: 'Frigijski', SCALE_LYDIAN: 'Lidijski', SCALE_LOCRIAN: 'Lokrijski',
+      SCALE_HARMONIC_MINOR: 'Harmonijski mol', SCALE_MELODIC_MINOR: 'Melodijski mol',
+      SCALE_MAJOR_PENTATONIC: 'Durska pentatonika', SCALE_MINOR_PENTATONIC: 'Molska pentatonika',
+    },
+  };
+
+  let currentLang = 'en';
+
+  function t(key, vars){
+    let str = (labels[currentLang] && labels[currentLang][key]) || labels.en[key] || key;
+    if (vars){
+      Object.keys(vars).forEach(k => { str = str.replace(new RegExp('\\{' + k + '\\}', 'g'), vars[k]); });
+    }
+    return str;
+  }
+  function chordLabel(key){ return t('CHORD_' + key.toUpperCase()); }
+  function scaleLabel(key){ return t('SCALE_' + key.toUpperCase()); }
+  function questionTypeLabel(key){ return t('QTYPE_' + key.toUpperCase()); }
+
+  function ordinal(n){
+    if (currentLang === 'sr') return n + '.';
+    const s = ['th','st','nd','rd'];
+    const v = n % 100;
+    return n + (s[(v-20)%10] || s[v] || s[0]);
+  }
+  function pick(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
+
+  // Canonical (English/sharp) letter names are used internally for all matching and storage.
+  // Serbian practice uses H for natural B and B for A#/Bb — normalizeNote accepts both
+  // vocabularies depending on the active language, but always resolves to the canonical name.
+  const LETTER_BASE_EN = { C:0, D:2, E:4, F:5, G:7, A:9, B:11 };
+  const LETTER_BASE_SR = { C:0, D:2, E:4, F:5, G:7, A:9, B:10, H:11 };
+  const NOTES_DISPLAY_SR = ['C','C#','D','D#','E','F','F#','G','G#','A','B','H'];
+
+  function displayNote(note){
+    if (currentLang !== 'sr') return note;
+    return NOTES_DISPLAY_SR[NOTES.indexOf(note)];
+  }
+
+  function normalizeNote(token){
+    if (!token) return null;
+    token = token.trim();
+    if (!token) return null;
+    const letterBase = currentLang === 'sr' ? LETTER_BASE_SR : LETTER_BASE_EN;
+    const letter = token[0].toUpperCase();
+    if (!(letter in letterBase)) return null;
+    const rest = token.slice(1).toLowerCase();
+    let accidental = 0;
+    if (rest === '') accidental = 0;
+    else if (rest === '#' || rest === 's' || rest === 'sharp') accidental = 1;
+    else if (rest === 'b' || rest === 'f' || rest === 'flat') accidental = -1;
+    else return null;
+    const pitch = (letterBase[letter] + accidental + 12) % 12;
+    return NOTES[pitch];
+  }
+
+  /* ---------------- State ---------------- */
+  let state = {
+    config: null,      // {types, chords, scales, count}
+    questions: [],
+    index: 0,
+    score: 0,
+    results: [],        // {correct: bool} per question, for staff progress
+    selected: new Set(),
+    answered: false,
+  };
+
+  /* ---------------- Setup screen build ---------------- */
+  const typeGrid = document.getElementById('typeGrid');
+  const chordGrid = document.getElementById('chordGrid');
+  const chordGridMore = document.getElementById('chordGridMore');
+  const scaleGrid = document.getElementById('scaleGrid');
+  const scaleGridMore = document.getElementById('scaleGridMore');
+  const inputModeGrid = document.getElementById('inputModeGrid');
+  const chordFieldset = document.getElementById('chordFieldset');
+  const scaleFieldset = document.getElementById('scaleFieldset');
+
+  function makeCheckItem(id, label, checked, onChange){
+    const wrap = document.createElement('label');
+    wrap.className = 'check-item' + (checked ? ' checked' : '');
+    wrap.setAttribute('for', id);
+    wrap.innerHTML = `<input type="checkbox" id="${id}" ${checked ? 'checked' : ''}><span>${label}</span>`;
+    const input = wrap.querySelector('input');
+    input.addEventListener('change', () => {
+      wrap.classList.toggle('checked', input.checked);
+      if (onChange) onChange();
+    });
+    return wrap;
+  }
+  function makeRadioItem(id, name, value, label, checked){
+    const wrap = document.createElement('label');
+    wrap.className = 'check-item' + (checked ? ' checked' : '');
+    wrap.setAttribute('for', id);
+    wrap.innerHTML = `<input type="radio" id="${id}" name="${name}" value="${value}" ${checked ? 'checked' : ''}><span>${label}</span>`;
+    const input = wrap.querySelector('input');
+    input.addEventListener('change', () => {
+      document.querySelectorAll(`input[name="${name}"]`).forEach(i => {
+        i.closest('.check-item').classList.toggle('checked', i.checked);
+      });
+    });
+    return wrap;
+  }
+
+  // Rebuild a checkbox grid from scratch, preserving whatever was checked before (if any).
+  function renderCheckGrid(container, items, onChange){
+    const prevChecked = {};
+    container.querySelectorAll('input').forEach(inp => { prevChecked[inp.id] = inp.checked; });
+    container.innerHTML = '';
+    items.forEach(it => {
+      const checked = (it.id in prevChecked) ? prevChecked[it.id] : it.defaultChecked;
+      container.appendChild(makeCheckItem(it.id, it.label, checked, onChange));
+    });
+  }
+  function renderRadioGrid(container, name, items, defaultValue){
+    const prevSelected = container.querySelector('input:checked')?.value;
+    const selectedValue = prevSelected || defaultValue;
+    container.innerHTML = '';
+    items.forEach(it => {
+      container.appendChild(makeRadioItem(it.id, name, it.value, it.label, it.value === selectedValue));
+    });
+  }
+
+  const BASIC_CHORDS = ['major', 'minor'];
+  const BASIC_SCALES = ['major', 'minor'];
+
+  function updateFieldsetVisibility(){
+    const types = getCheckedTypes();
+    chordFieldset.classList.toggle('hidden', !types.includes('chord'));
+    scaleFieldset.classList.toggle('hidden', !(types.includes('scale') || types.includes('nth')));
+  }
+
+  function renderSetupGrids(){
+    renderCheckGrid(typeGrid, QUESTION_TYPE_KEYS.map(k => ({
+      id: 'type-' + k, label: questionTypeLabel(k), defaultChecked: k === 'scale',
+    })), updateFieldsetVisibility);
+
+    renderRadioGrid(inputModeGrid, 'answerInput', [
+      { id: 'input-type', value: 'type', label: t('INPUT_TYPE_LABEL') },
+      { id: 'input-piano', value: 'piano', label: t('INPUT_PIANO_LABEL') },
+    ], 'type');
+
+    renderCheckGrid(chordGrid, CHORD_PRIMARY.map(k => ({
+      id: 'chord-' + k, label: chordLabel(k), defaultChecked: BASIC_CHORDS.includes(k),
+    })));
+    renderCheckGrid(chordGridMore, CHORD_MORE.map(k => ({
+      id: 'chord-' + k, label: chordLabel(k), defaultChecked: false,
+    })));
+    renderCheckGrid(scaleGrid, SCALE_PRIMARY.map(k => ({
+      id: 'scale-' + k, label: scaleLabel(k), defaultChecked: BASIC_SCALES.includes(k),
+    })));
+    renderCheckGrid(scaleGridMore, SCALE_MORE.map(k => ({
+      id: 'scale-' + k, label: scaleLabel(k), defaultChecked: false,
+    })));
+
+    updateFieldsetVisibility();
+  }
+  renderSetupGrids();
+
+  function getCheckedKeys(prefix, allKeys){
+    return allKeys.filter(k => document.getElementById(prefix + k)?.checked);
+  }
+  function getCheckedTypes(){
+    return QUESTION_TYPE_KEYS.filter(k => document.getElementById('type-' + k)?.checked);
+  }
+
+  const setupError = document.getElementById('setup-error');
+  function showSetupError(msg){
+    setupError.textContent = msg;
+    setupError.classList.remove('hidden');
+  }
+  function clearSetupError(){ setupError.classList.add('hidden'); }
+
+  document.getElementById('startBtn').addEventListener('click', () => {
+    clearSetupError();
+    const types = getCheckedTypes();
+    const chords = getCheckedKeys('chord-', [...CHORD_PRIMARY, ...CHORD_MORE]);
+    const scales = getCheckedKeys('scale-', [...SCALE_PRIMARY, ...SCALE_MORE]);
+    const count = Math.max(3, Math.min(30, parseInt(document.getElementById('questionCount').value, 10) || 10));
+
+    if (types.length === 0){ showSetupError(t('ERR_NO_TYPE')); return; }
+    if (types.includes('chord') && chords.length === 0){ showSetupError(t('ERR_NO_CHORD')); return; }
+    if ((types.includes('scale') || types.includes('nth')) && scales.length === 0){ showSetupError(t('ERR_NO_SCALE')); return; }
+
+    const inputMode = document.querySelector('input[name="answerInput"]:checked')?.value || 'type';
+    state.config = { types, chords, scales, count, inputMode };
+    startQuiz();
+  });
+
+  /* ---------------- Question generation ---------------- */
+  function buildQuestion(config){
+    const availableTypes = config.types.filter(t => {
+      if (t === 'chord') return config.chords.length > 0;
+      return config.scales.length > 0; // scale or nth
+    });
+    const type = pick(availableTypes);
+    const root = Math.floor(Math.random() * 12);
+    const rootName = NOTES[root];
+
+    if (type === 'chord'){
+      const key = pick(config.chords);
+      const intervals = CHORD_DEFS[key];
+      const answer = intervals.map(iv => NOTES[(root + iv) % 12]);
+      return { type, root, rootName, defKey: key, answer: new Set(answer), mode: 'multi' };
+    }
+    if (type === 'scale'){
+      const key = pick(config.scales);
+      const intervals = SCALE_DEFS[key];
+      const answer = intervals.map(iv => NOTES[(root + iv) % 12]);
+      return { type, root, rootName, defKey: key, answer: new Set(answer), mode: 'multi' };
+    }
+    // nth
+    const key = pick(config.scales);
+    const intervals = SCALE_DEFS[key];
+    const n = 1 + Math.floor(Math.random() * intervals.length);
+    const answerNote = NOTES[(root + intervals[n-1]) % 12];
+    return { type, root, rootName, defKey: key, n, answer: new Set([answerNote]), mode: 'single' };
+  }
+
+  function buildQuestions(config){
+    const qs = [];
+    for (let i = 0; i < config.count; i++){
+      qs.push(buildQuestion(config));
+    }
+    return qs;
+  }
+
+  // Builds the display sentence (and optional hint) for a question, in the current language.
+  function questionSentence(q){
+    if (q.type === 'chord'){
+      return { text: t('SENTENCE_CHORD', { root: displayNote(q.rootName), label: chordLabel(q.defKey) }), hint: null };
+    }
+    if (q.type === 'scale'){
+      return { text: t('SENTENCE_SCALE', { root: displayNote(q.rootName), label: scaleLabel(q.defKey) }), hint: null };
+    }
+    return {
+      text: t('SENTENCE_NTH', { ord: ordinal(q.n), root: displayNote(q.rootName), label: scaleLabel(q.defKey) }),
+      hint: t('HINT_COUNT_ROOT'),
+    };
+  }
+
+  /* ---------------- Staff header (progress) ---------------- */
+  const staffSvg = document.getElementById('staffSvg');
+  function renderStaff(){
+    const W = 700, H = 90;
+    const lineYs = [20, 32, 44, 56, 68];
+    let svg = '';
+    lineYs.forEach(y => { svg += `<line class="staff-line" x1="20" y1="${y}" x2="${W-20}" y2="${y}"/>`; });
+
+    // simple stylised clef mark
+    svg += `<text x="26" y="66" class="clef" font-family="Fraunces, serif" font-size="58" font-weight="700">𝄞</text>`;
+
+    const total = state.results.length;
+    if (total > 0){
+      const startX = 100;
+      const endX = W - 40;
+      const spacing = total > 1 ? (endX - startX) / (total - 1) : 0;
+      state.results.forEach((r, i) => {
+        const x = total === 1 ? (startX + endX)/2 : startX + spacing * i;
+        const y = r === null ? 44 : (r ? 44 : 78);
+        const color = r === null ? 'var(--line)' : (r ? 'var(--moss)' : 'var(--rust)');
+        const opacity = r === null ? 0.35 : 1;
+        svg += `<g class="note-mark" style="opacity:${opacity}"><ellipse cx="${x}" cy="${y}" rx="6" ry="4.6" fill="${color}" transform="rotate(-18 ${x} ${y})"/>`;
+        if (r !== null){ svg += `<line x1="${x+5.6}" y1="${y-2}" x2="${x+5.6}" y2="${y-26}" stroke="${color}" stroke-width="1.6"/>`; }
+        svg += `</g>`;
+      });
+    }
+    staffSvg.innerHTML = svg;
+  }
+
+  /* ---------------- Keyboard component ---------------- */
+  const keyboardEl = document.getElementById('keyboard');
+  function buildKeyboard(){
+    keyboardEl.innerHTML = '';
+    WHITE_NOTES.forEach(note => {
+      const key = document.createElement('div');
+      key.className = 'white-key';
+      key.dataset.note = note;
+      key.innerHTML = `<span>${displayNote(note)}</span>`;
+      key.addEventListener('click', () => onKeyClick(note));
+      keyboardEl.appendChild(key);
+    });
+    BLACK_NOTES.forEach(note => {
+      const key = document.createElement('div');
+      key.className = 'black-key';
+      key.dataset.note = note;
+      key.style.left = BLACK_KEY_LEFT[note];
+      key.innerHTML = `<span>${displayNote(note)}</span>`;
+      key.addEventListener('click', (e) => { e.stopPropagation(); onKeyClick(note); });
+      keyboardEl.appendChild(key);
+    });
+  }
+  buildKeyboard();
+
+  function refreshKeyboardLabels(){
+    [...WHITE_NOTES, ...BLACK_NOTES].forEach(note => {
+      const span = keyEl(note)?.querySelector('span');
+      if (span) span.textContent = displayNote(note);
+    });
+  }
+
+  function keyEl(note){ return keyboardEl.querySelector(`[data-note="${CSS.escape(note)}"]`); }
+
+  function onKeyClick(note){
+    if (state.answered) return;
+    const q = state.questions[state.index];
+    if (q.mode === 'single'){
+      state.selected = new Set([note]);
+    } else {
+      if (state.selected.has(note)) state.selected.delete(note);
+      else state.selected.add(note);
+    }
+    syncKeyboardSelection();
+    renderSelectionChips();
+    updateSubmitEnabled();
+  }
+
+  function syncKeyboardSelection(){
+    [...WHITE_NOTES, ...BLACK_NOTES].forEach(n => {
+      keyEl(n).classList.toggle('selected', state.selected.has(n));
+    });
+  }
+
+  // Chip preview shown under the piano in piano-answer mode.
+  const selectionRow = document.getElementById('selectionRow');
+  function renderSelectionChips(){
+    selectionRow.innerHTML = '';
+    if (state.selected.size === 0){
+      const chip = document.createElement('span');
+      chip.className = 'chip placeholder';
+      chip.textContent = t('NO_SELECTION');
+      selectionRow.appendChild(chip);
+      return;
+    }
+    NOTES.forEach(n => {
+      if (state.selected.has(n)){
+        const chip = document.createElement('span');
+        chip.className = 'chip';
+        chip.textContent = displayNote(n);
+        selectionRow.appendChild(chip);
+      }
+    });
+  }
+
+  function clearKeyStates(){
+    [...WHITE_NOTES, ...BLACK_NOTES].forEach(n => {
+      const el = keyEl(n);
+      el.classList.remove('selected','correct','missed','wrong');
+    });
+  }
+
+  /* ---------------- Quiz flow ---------------- */
+  const answerTypeWrap = document.getElementById('answerType');
+  const noteBoxesEl = document.getElementById('noteBoxes');
+  const typeError = document.getElementById('typeError');
+  const keyboardRevealLabel = document.getElementById('keyboardRevealLabel');
+  let noteBoxes = [];
+
+  // Only allows a note letter (A-G) optionally followed by # or b — nothing else can end up in a box.
+  function sanitizeBoxValue(raw){
+    const letterChars = currentLang === 'sr' ? 'A-Ha-h' : 'A-Ga-g';
+    const cleaned = raw.replace(new RegExp('[^' + letterChars + '#b]', 'g'), '');
+    let letter = '', accidental = '';
+    if (cleaned.length > 0) letter = cleaned[0].toUpperCase();
+    if (cleaned.length > 1){
+      const c1 = cleaned[1];
+      if (c1 === '#') accidental = '#';
+      else if (c1.toLowerCase() === 'b') accidental = 'b';
+    }
+    return letter + accidental;
+  }
+
+  function focusBox(idx){
+    if (idx < 0){ noteBoxes[0]?.focus(); return; }
+    if (idx >= noteBoxes.length){ if (!submitBtn.disabled) submitBtn.focus(); return; }
+    noteBoxes[idx].focus();
+  }
+
+  function updateTypedValidity(){
+    const values = noteBoxes.map(b => b.value);
+    const allFilled = values.length > 0 && values.every(v => v.length > 0);
+    const parsedSet = new Set(values.map(v => normalizeNote(v)).filter(Boolean));
+    const hasDuplicate = allFilled && parsedSet.size < values.length;
+
+    typeError.textContent = hasDuplicate ? t('ERR_DUPLICATE_NOTE') : '';
+    typeError.classList.toggle('hidden', !hasDuplicate);
+
+    state.selected = parsedSet;
+    submitBtn.disabled = !allFilled || hasDuplicate;
+  }
+
+  function onBoxInput(e){
+    const idx = Number(e.target.dataset.idx);
+    const clean = sanitizeBoxValue(e.target.value);
+    e.target.value = clean;
+    if (clean.length === 2) focusBox(idx + 1);
+    updateTypedValidity();
+  }
+
+  function onBoxKeydown(e){
+    const idx = Number(e.target.dataset.idx);
+    if (e.key === 'Backspace' && e.target.value === '' && idx > 0){
+      e.preventDefault();
+      noteBoxes[idx - 1].value = '';
+      noteBoxes[idx - 1].focus();
+      updateTypedValidity();
+    } else if (e.key === ' ' || e.key === 'Enter'){
+      e.preventDefault();
+      if (e.target.value) focusBox(idx + 1);
+      else if (e.key === 'Enter' && !submitBtn.disabled) submitBtn.click();
+    } else if (e.key === 'ArrowLeft' && e.target.selectionStart === 0){
+      e.preventDefault();
+      focusBox(idx - 1);
+    } else if (e.key === 'ArrowRight' && e.target.selectionStart === e.target.value.length){
+      e.preventDefault();
+      focusBox(idx + 1);
+    }
+  }
+
+  function renderNoteBoxes(count){
+    noteBoxesEl.innerHTML = '';
+    noteBoxes = [];
+    for (let i = 0; i < count; i++){
+      const box = document.createElement('input');
+      box.type = 'text';
+      box.className = 'note-box';
+      box.maxLength = 2;
+      box.autocomplete = 'off';
+      box.autocapitalize = 'off';
+      box.spellcheck = false;
+      box.dataset.idx = i;
+      box.addEventListener('input', onBoxInput);
+      box.addEventListener('keydown', onBoxKeydown);
+      box.addEventListener('focus', () => box.select());
+      noteBoxesEl.appendChild(box);
+      noteBoxes.push(box);
+    }
+    typeError.classList.add('hidden');
+    state.selected = new Set();
+    submitBtn.disabled = true;
+  }
+
+  const setupScreen = document.getElementById('setup-screen');
+  const quizScreen = document.getElementById('quiz-screen');
+  const resultsScreen = document.getElementById('results-screen');
+  const goBackBtn = document.getElementById('goBackBtn');
+  const questionText = document.getElementById('questionText');
+  const quizProgress = document.getElementById('quizProgress');
+  const quizScore = document.getElementById('quizScore');
+  const feedbackBox = document.getElementById('feedbackBox');
+  const submitBtn = document.getElementById('submitBtn');
+  const clearBtn = document.getElementById('clearBtn');
+  const quizActions = document.getElementById('quizActions');
+
+  function startQuiz(){
+    state.questions = buildQuestions(state.config);
+    state.index = 0;
+    state.score = 0;
+    state.results = state.questions.map(() => null);
+    setupScreen.classList.add('hidden');
+    resultsScreen.classList.add('hidden');
+    quizScreen.classList.remove('hidden');
+    goBackBtn.classList.remove('hidden');
+    renderStaff();
+    renderQuestion();
+  }
+
+  function updateQuizMeta(){
+    quizProgress.textContent = t('QUESTION_OF', { i: state.index + 1, n: state.questions.length });
+    quizScore.textContent = t('SCORE_LABEL') + ': ' + state.score;
+  }
+
+  function refreshSubmitButtonLabel(){
+    if (!state.questions.length) return;
+    if (!state.answered){
+      submitBtn.textContent = t('SUBMIT_BTN');
+    } else {
+      submitBtn.textContent = state.index === state.questions.length - 1 ? t('RESULTS_BTN') : t('NEXT_BTN');
+    }
+  }
+
+  function renderQuestion(){
+    const q = state.questions[state.index];
+    state.selected = new Set();
+    state.answered = false;
+    clearKeyStates();
+    keyboardEl.classList.remove('locked');
+    feedbackBox.innerHTML = '';
+    quizActions.classList.remove('hidden');
+    refreshSubmitButtonLabel();
+    submitBtn.disabled = true;
+    clearBtn.classList.remove('hidden');
+    keyboardRevealLabel.classList.add('hidden');
+
+    if (state.config.inputMode === 'piano'){
+      answerTypeWrap.classList.add('hidden');
+      keyboardEl.classList.remove('hidden');
+      selectionRow.classList.remove('hidden');
+      renderSelectionChips();
+    } else {
+      keyboardEl.classList.add('hidden');
+      answerTypeWrap.classList.remove('hidden');
+      selectionRow.classList.add('hidden');
+      renderNoteBoxes(q.mode === 'single' ? 1 : q.answer.size);
+      setTimeout(() => noteBoxes[0]?.focus(), 0);
+    }
+
+    updateQuizMeta();
+    const { text, hint } = questionSentence(q);
+    questionText.innerHTML = text + (hint ? `<span class="hint">${hint}</span>` : '');
+  }
+
+  function updateSubmitEnabled(){
+    submitBtn.disabled = state.selected.size === 0;
+  }
+
+  clearBtn.addEventListener('click', () => {
+    if (state.answered) return;
+    state.selected = new Set();
+    if (state.config.inputMode === 'type'){
+      noteBoxes.forEach(b => { b.value = ''; });
+      typeError.classList.add('hidden');
+      submitBtn.disabled = true;
+      noteBoxes[0]?.focus();
+    } else {
+      syncKeyboardSelection();
+      renderSelectionChips();
+      updateSubmitEnabled();
+    }
+  });
+
+  function setsEqual(a, b){
+    if (a.size !== b.size) return false;
+    for (const v of a) if (!b.has(v)) return false;
+    return true;
+  }
+
+  // Builds the feedback line, plus (when the answer is fully correct and typed) a note about
+  // any notes the user spelled differently from the canonical answer (e.g. Eb typed for D#).
+  function buildFeedbackHTML(q, correct){
+    const answerList = [...q.answer].sort((a,b) => NOTES.indexOf(a) - NOTES.indexOf(b)).map(displayNote).join(', ');
+    let html = correct
+      ? `<b>${t('CORRECT_FEEDBACK')}</b> ${answerList}`
+      : `<b>${t('WRONG_FEEDBACK')}</b> ${t('ANSWER_IS_LABEL')} ${answerList}.`;
+
+    if (correct && state.config.inputMode === 'type'){
+      const respellings = [];
+      noteBoxes.forEach(b => {
+        const val = normalizeNote(b.value);
+        const canonicalDisplay = val ? displayNote(val) : null;
+        if (val && q.answer.has(val) && b.value !== canonicalDisplay){
+          respellings.push(t('SPELLING_PAIR', { typed: b.value, canonical: canonicalDisplay }));
+        }
+      });
+      if (respellings.length > 0){
+        html += `<span class="spelling-note">${t('SPELLING_NOTE', { pairs: respellings.join(', ') })}</span>`;
+      }
+    }
+    return html;
+  }
+
+  submitBtn.addEventListener('click', () => {
+    if (state.answered){ advance(); return; }
+    const q = state.questions[state.index];
+    const correct = setsEqual(state.selected, q.answer);
+    state.answered = true;
+    keyboardEl.classList.add('locked');
+    clearBtn.classList.add('hidden');
+
+    if (state.config.inputMode === 'type'){
+      noteBoxes.forEach(b => {
+        b.disabled = true;
+        const val = normalizeNote(b.value);
+        b.classList.add((val && q.answer.has(val)) ? 'box-correct' : 'box-wrong');
+      });
+      keyboardEl.classList.remove('hidden');
+      keyboardRevealLabel.classList.remove('hidden');
+    }
+
+    q.answer.forEach(n => {
+      const el = keyEl(n);
+      if (state.selected.has(n)) el.classList.add('correct');
+      else el.classList.add('missed');
+    });
+    state.selected.forEach(n => {
+      if (!q.answer.has(n)) keyEl(n).classList.add('wrong');
+    });
+
+    feedbackBox.innerHTML = '';
+    const box = document.createElement('div');
+    box.className = 'feedback ' + (correct ? 'correct' : 'wrong');
+    box.innerHTML = buildFeedbackHTML(q, correct);
+    feedbackBox.appendChild(box);
+
+    if (correct) state.score++;
+    state.results[state.index] = correct;
+    renderStaff();
+    updateQuizMeta();
+    refreshSubmitButtonLabel();
+  });
+
+  function advance(){
+    if (state.index < state.questions.length - 1){
+      state.index++;
+      renderQuestion();
+    } else {
+      showResults();
+    }
+  }
+
+  /* ---------------- Results ---------------- */
+  const reviewList = document.getElementById('reviewList');
+  function showResults(){
+    quizScreen.classList.add('hidden');
+    resultsScreen.classList.remove('hidden');
+    goBackBtn.classList.add('hidden');
+    document.getElementById('resultsBig').textContent = `${state.score}/${state.questions.length}`;
+    const pct = Math.round((state.score / state.questions.length) * 100);
+    document.getElementById('resultsSub').textContent = t('RESULTS_SUB', { pct });
+
+    reviewList.innerHTML = '';
+    state.questions.forEach((q, i) => {
+      const correct = state.results[i];
+      const row = document.createElement('div');
+      row.className = 'review-item ' + (correct ? 'is-correct' : 'is-wrong');
+      const answerList = [...q.answer].sort((a,b) => NOTES.indexOf(a) - NOTES.indexOf(b)).map(displayNote).join(', ');
+      row.innerHTML = `<span class="q">${questionSentence(q).text}</span><span class="a">${answerList}</span>`;
+      reviewList.appendChild(row);
+    });
+  }
+
+  document.getElementById('retryBtn').addEventListener('click', startQuiz);
+  document.getElementById('newQuizBtn').addEventListener('click', () => {
+    resultsScreen.classList.add('hidden');
+    setupScreen.classList.remove('hidden');
+    state.results = [];
+    renderStaff();
+  });
+  goBackBtn.addEventListener('click', () => {
+    quizScreen.classList.add('hidden');
+    setupScreen.classList.remove('hidden');
+    goBackBtn.classList.add('hidden');
+    state.results = [];
+    renderStaff();
+  });
+
+  /* ---------------- Locale switching ---------------- */
+  const STATIC_TEXT_IDS = {
+    appTitle: 'APP_TITLE', appSubtitle: 'APP_SUBTITLE', footerNote: 'FOOTER_NOTE',
+    legendTypes: 'LEGEND_TYPES', legendTypesSub: 'LEGEND_TYPES_SUB',
+    legendInput: 'LEGEND_INPUT', legendInputSub: 'LEGEND_INPUT_SUB',
+    legendChords: 'LEGEND_CHORDS', legendChordsSub: 'LEGEND_CHORDS_SUB',
+    legendScales: 'LEGEND_SCALES', legendScalesSub: 'LEGEND_SCALES_SUB',
+    legendLength: 'LEGEND_LENGTH', lengthUnitLabel: 'LENGTH_UNIT',
+    moreChords: 'MORE_CHORDS', moreScales: 'MORE_SCALES',
+    startBtn: 'START_BTN', typeHintText: 'TYPE_HINT',
+    keyboardRevealLabel: 'REVEAL_LABEL',
+    retryBtn: 'RETRY_BTN', newQuizBtn: 'NEW_QUIZ_BTN', goBackLabel: 'GO_BACK_BTN',
+  };
+
+  function applyStaticText(){
+    document.documentElement.lang = currentLang;
+    document.title = t('APP_TITLE') + ' — ' + t('APP_SUBTITLE');
+    Object.keys(STATIC_TEXT_IDS).forEach(id => {
+      const el = document.getElementById(id);
+      // legends have a nested .legend-sub span; only touch this node's own leading text
+      if (el && el.tagName === 'LEGEND'){
+        const sub = el.querySelector('.legend-sub');
+        el.firstChild.textContent = t(STATIC_TEXT_IDS[id]);
+        if (sub) el.appendChild(sub);
+      } else if (el){
+        el.textContent = t(STATIC_TEXT_IDS[id]);
+      }
+    });
+    clearBtn.textContent = t('CLEAR_BTN');
+  }
+
+  function setLocale(lang){
+    currentLang = lang;
+    document.querySelectorAll('.lang-btn').forEach(b => b.classList.toggle('active', b.dataset.lang === lang));
+
+    applyStaticText();
+    renderSetupGrids();
+    refreshKeyboardLabels();
+
+    if (!setupScreen.classList.contains('hidden')){
+      // nothing further to refresh
+    } else if (!quizScreen.classList.contains('hidden')){
+      updateQuizMeta();
+      refreshSubmitButtonLabel();
+      if (state.config.inputMode === 'piano'){
+        renderSelectionChips();
+      } else if (!state.answered){
+        updateTypedValidity();
+      } else if (!typeError.classList.contains('hidden')){
+        typeError.textContent = t('ERR_DUPLICATE_NOTE');
+      }
+      if (state.questions.length){
+        const q = state.questions[state.index];
+        const { text, hint } = questionSentence(q);
+        questionText.innerHTML = text + (hint ? `<span class="hint">${hint}</span>` : '');
+        if (state.answered){
+          const correct = state.results[state.index];
+          feedbackBox.innerHTML = '';
+          const box = document.createElement('div');
+          box.className = 'feedback ' + (correct ? 'correct' : 'wrong');
+          box.innerHTML = buildFeedbackHTML(q, correct);
+          feedbackBox.appendChild(box);
+        }
+      }
+    } else if (!resultsScreen.classList.contains('hidden')){
+      showResults();
+    }
+  }
+
+  document.querySelectorAll('.lang-btn').forEach(btn => {
+    btn.addEventListener('click', () => setLocale(btn.dataset.lang));
+  });
+
+  /* init */
+  setLocale('sr');
+  renderStaff();
+})();
+</script>
+</body>
+</html>
