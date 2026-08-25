@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://lazer-nikolic.github.io/muzicka-vezbaonica/sitemap.xml

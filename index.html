@@ -3,11 +3,38 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>The Woodshed — Scale &amp; Chord Drill</title>
+<title>The Woodshed — Scale &amp; Chord Practice Quiz | Vežbaonica</title>
+<meta name="description" content="Free interactive quiz for practicing musical scales and chords — identify notes in a scale, a chord, or by scale degree. Available in English and Serbian. Besplatan kviz za vežbanje skala i akorda — muzička vežbaonica na srpskom i engleskom.">
+<meta name="keywords" content="music practice, scale practice, chord practice, music theory quiz, ear training, vežbanje skala, vežbanje akorda, muzička vežbaonica, teorija muzike, kviz iz muzike">
+<link rel="canonical" href="https://lazer-nikolic.github.io/muzicka-vezbaonica/">
+
+<meta property="og:type" content="website">
+<meta property="og:title" content="The Woodshed — Scale & Chord Practice Quiz | Vežbaonica">
+<meta property="og:description" content="Free interactive quiz for practicing musical scales and chords, in English or Serbian.">
+<meta property="og:url" content="https://lazer-nikolic.github.io/muzicka-vezbaonica/">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="The Woodshed — Scale & Chord Practice Quiz | Vežbaonica">
+<meta name="twitter:description" content="Free interactive quiz for practicing musical scales and chords, in English or Serbian.">
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "The Woodshed",
+  "alternateName": "Vežbaonica",
+  "description": "Interactive scale and chord practice quiz for musicians. Practice identifying notes in a scale, a chord, or by scale degree. Available in English and Serbian.",
+  "applicationCategory": "EducationalApplication",
+  "operatingSystem": "Any (web browser)",
+  "inLanguage": ["en", "sr"],
+  "isAccessibleForFree": true,
+  "url": "https://lazer-nikolic.github.io/muzicka-vezbaonica/"
+}
+</script>
+
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='rgb(22,33,27)'/><text x='50' y='78' font-family='Georgia,serif' font-size='82' font-weight='700' text-anchor='middle' fill='rgb(205,164,58)'>𝄞</text></svg>">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Work+Sans:wght@400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=3">
+<link rel="stylesheet" href="style.css?v=4">
 </head>
 <body>
 <div id="app" x-data="quizApp()" x-cloak>
@@ -23,8 +50,8 @@
   <div class="staff-header">
     <div class="staff-wrap"><svg viewBox="0 0 700 90" preserveAspectRatio="xMidYMid meet" x-html="staffMarkup"></svg></div>
     <div class="title-block">
-      <h1 x-text="t('APP_TITLE')"></h1>
-      <p x-text="t('APP_SUBTITLE')"></p>
+      <h1 x-text="t('APP_TITLE')">The Woodshed</h1>
+      <p x-text="t('APP_SUBTITLE')">Scale &amp; chord drill</p>
     </div>
   </div>
 
@@ -238,11 +265,11 @@
     </div>
   </section>
 
-  <footer x-text="t('FOOTER_NOTE')"></footer>
+  <footer x-text="t('FOOTER_NOTE')">Notes are spelled with sharps only, to keep things simple.</footer>
 </div>
 
 <script src="alpine.min.js" defer></script>
-<script src="localization.js?v=3"></script>
-<script src="index.js?v=3"></script>
+<script src="localization.js?v=4"></script>
+<script src="index.js?v=4"></script>
 </body>
 </html>
